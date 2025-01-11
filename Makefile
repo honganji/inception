@@ -36,6 +36,9 @@ fclean: clean
 
 re: fclean all
 
+start:
+	docker compose up --build
+
 $(OBJ_DIR)/%.o: %.c $(HEADERS)
 	@$(MAKE_DIR) $(dir $@)  # Create the directory for the object file if it doesn't exist
 	$(CC) $(CC_FLAG) -c $< -o $@ $(LINK_HEADERS)
