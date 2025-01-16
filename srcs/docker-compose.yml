@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  default:
+    driver: bridge
+
 services:
   nginx:
     container_name: nginx
@@ -7,17 +11,17 @@ services:
     ports:
       - "80:80"
     volumes:
-      - $HOME/web:/var/www/html
+      - web:/var/www/html
     networks:
-      inception:
+      default:
 
   wordpress:
     container_name: wp-php
     build: ./srcs/wordpress/.
     volumes:
-      - $HOME/web:/var/www/html
+      - web:/var/www/html
     networks:
-      inception:
+      default:
     env_file:
       - .env
   
@@ -25,8 +29,20 @@ services:
     container_name: mariadb
     build: ./srcs/mariadb/.
     volumes:
-      - $HOME/web:/var/www/html
+      - web:/var/www/html
     networks:
-      inception:
-networks:
-  inception:
+      default:
+
+volumes:
+  web:
+    driver: local
+    driver_opts:
+      device: $HOME/web
+      type: none
+      o: bind
+  db:
+    driver: local
+    driver_opts:
+      device: $HOME/web
+      type: none
+      o: bind
