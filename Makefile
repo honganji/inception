@@ -11,6 +11,7 @@ RM_FLAG := -rf
 all: start
 
 start:
+	$(MAKE_DIR) $(HOME)/web
 	$(DOCKER) $(COMPOSE) -f ./$(SRCS_DIR)/$(DOCKER_COMPOSE_FILE) up -d
 
 stop:
