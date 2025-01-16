@@ -1,6 +1,9 @@
-NAME := Inception
-
 SRCS_DIR := srcs
+
+DOCKER_COMPOSE := docker compose
+DOCKER_COMPOSE_FILE := docker-compose.yml
+
+NAME := Inception
 HEADER_DIR := $(SRCS_DIR)/includes
 WORDPRESS_DIR := $(SRCS_DIR)/wordpress
 OBJ_DIR := objs
@@ -37,7 +40,7 @@ fclean: clean
 re: fclean all
 
 start:
-	docker compose up --build
+	$(DOCKER_COMPOSE) -f ./$(DOCKER_COMPOSE_FILE) up -d
 
 $(OBJ_DIR)/%.o: %.c $(HEADERS)
 	@$(MAKE_DIR) $(dir $@)  # Create the directory for the object file if it doesn't exist

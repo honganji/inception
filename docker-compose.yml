@@ -18,6 +18,8 @@ services:
       - ./web:/var/www/html
     networks:
       inception:
+    env_file:
+      - .env
   
   mariadb:
     container_name: mariadb
