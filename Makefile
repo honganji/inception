@@ -1,27 +1,44 @@
-SRCS_DIR := srcs
+USER = ykerdel
+HOME = /home/${USER}
+CERT_PATH = ${HOME}/inception/srcs/requirements/nginx/tools
 
-DOCKER := docker
-COMPOSE := compose
-DOCKER_COMPOSE_FILE := docker-compose.yml
+all: cert
+	@bash ./srcs/conf/create_volumes.sh
+	@docker-compose -f ./srcs/docker-compose.yml up -d --remove-orphans
 
-MAKE_DIR := mkdir -p
+cert:
+	@mkdir ${CERT_PATH}
+	@cd ${CERT_PATH} && mkcert ${USER}.42.fr
+	@mv ${CERT_PATH}/${USER}.42.fr-key.pem ${CERT_PATH}/${USER}.42.fr.key
+	@mv ${CERT_PATH}/${USER}.42.fr.pem ${CERT_PATH}/${USER}.42.fr.crt
+	@cd -
 
-RM_FLAG := -rf
+build:
+	@docker-compose -f ./srcs/docker-compose.yml up -d --build --remove-orphans
 
-all: start
+down:
+	@docker-compose -f ./srcs/docker-compose.yml down
 
-start:
-	$(MAKE_DIR) $(HOME)/web
-	$(DOCKER) $(COMPOSE) -f ./$(SRCS_DIR)/$(DOCKER_COMPOSE_FILE) up -d
+re:	down
+	@docker-compose -f ./srcs/docker-compose.yml up -d --build --remove-orephans
 
-stop:
-	$(DOCKER) $(COMPOSE) -f ./$(SRCS_DIR)/$(DOCKER_COMPOSE_FILE) down
+clean: down
+	@docker system prune -a
 
-prune:
-	$(DOCKER) system prune -af
+fclean: down
+	@rm -rf ${CERT_PATH}
+	@printf "\033[33m\u26d4 volume removal \u26d4\033[31m\n"
+	# @docker-compose down
+	@docker volume remove srcs_wp-volume srcs_db-volume
+	@printf "\033[0m\n"
 
-.PHONY: start stop prune
+check:
+	@docker network ls
+	@printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+	@docker volume ls
+	@printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+	@docker images ls
+	@printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
+	@docker ps -a
 
-GREEN := \033[0;32m
-BLUE := \033[0;34m
-NC := \033[0m
+.PHONY	: all build down re clean fclean cert check

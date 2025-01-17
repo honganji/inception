@@ -1,48 +1,71 @@
-version: '3.8'
-
-networks:
-  default:
-    driver: bridge
+version: '3'
 
 services:
   nginx:
+    build:
+      context: .
+      dockerfile: requirements/nginx/Dockerfile
     container_name: nginx
-    build: ./srcs/nginx/.
+    depends_on:
+      - wordpress
     ports:
-      - "80:80"
-    volumes:
-      - web:/var/www/html
+      - "443:443"
     networks:
-      default:
+      - inception
+    volumes:
+      - ./requirements/nginx/conf/:/etc/nginx/http.d/
+      - ./requirements/nginx/tools:/etc/nginx/ssl/
+      - wp-volume:/var/www/
+    restart: always
+
+  mariadb:
+    build:
+      context: .
+      dockerfile: requirements/mariadb/Dockerfile
+      args:
+        DB_NAME: ${DB_NAME}
+        DB_USER: ${DB_USER}
+        DB_PASS: ${DB_PASS}
+        DB_ROOT: ${DB_ROOT}
+    container_name: mariadb
+    ports:
+      - "3306:3306"
+    networks:
+      - inception
+    volumes:
+      - db-volume:/var/lib/mysql
+    restart: always
 
   wordpress:
-    container_name: wp-php
-    build: ./srcs/wordpress/.
-    volumes:
-      - web:/var/www/html
+    build:
+      context: .
+      dockerfile: requirements/wordpress/Dockerfile
+      args:
+        DB_NAME: ${DB_NAME}
+        DB_USER: ${DB_USER}
+        DB_PASS: ${DB_PASS}
+    container_name: wordpress
+    depends_on:
+      - mariadb
+    restart: always
     networks:
-      default:
-    env_file:
-      - .env
-  
-  mariadb:
-    container_name: mariadb
-    build: ./srcs/mariadb/.
+      - inception
     volumes:
-      - web:/var/www/html
-    networks:
-      default:
+      - wp-volume:/var/www/
 
 volumes:
-  web:
-    driver: local
+  wp-volume:
     driver_opts:
-      device: $HOME/web
-      type: none
       o: bind
-  db:
-    driver: local
+      type: none
+      device: /home/ykerdel/data/wordpress
+
+  db-volume:
     driver_opts:
-      device: $HOME/web
-      type: none
       o: bind
+      type: none
+      device: /home/ykerdel/data/mariadb
+
+networks:
+    inception:
+        driver: bridge
