@@ -1,11 +1,22 @@
-FROM debian:latest
+FROM alpine:3.16
 
-RUN apt update && apt upgrade -y && apt install -y mariadb-server
+RUN apk update && apk add --no-cache mariadb mariadb-client
 
-COPY 50-server.cnf /etc/mysql/mariadb.conf.d/.
-COPY init.sql /etc/mysql/init.sql
-COPY script.sh .
+RUN mkdir /var/run/mysqld; \
+  chmod 777 /var/run/mysqld; \
+  { echo '[mysqld]'; \
+  echo 'skip-host-cache'; \
+  echo 'skip-name-resolve'; \
+  echo 'bind-address=0.0.0.0'; \
+  } | tee  /etc/my.cnf.d/docker.cnf; \
+  sed -i "s|skip-networking|skip-networking=0|g" \
+  /etc/my.cnf.d/mariadb-server.cnf
 
-RUN mkdir /run/mysqld && chmod +x script.sh
+RUN mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
-CMD [ "mysqld" ]
+EXPOSE 3306
+
+COPY requirements/mariadb/conf/create_db.sh .
+RUN sh create_db.sh && rm create_db.sh
+USER mysql
+CMD ["/usr/bin/mysqld", "--skip-log-error"]
