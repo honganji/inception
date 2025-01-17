@@ -1,71 +1,69 @@
 version: '3'
 
 services:
-  nginx:
+  mariadb:
+    container_name: mariadb
+    image: mariadb:eunskim
     build:
-      context: .
-      dockerfile: requirements/nginx/Dockerfile
-    container_name: nginx
+      context: ./requirements/mariadb/
+    env_file:
+      - .env
+    networks:
+      - inception
+    volumes:
+      - database:/var/lib/mysql
+    restart: always
+
+  wordpress:
+    depends_on:
+      - mariadb
+    container_name: wordpress
+    image: wordpress:eunskim
+    build:
+      context: ./requirements/wordpress/
+    env_file:
+      - .env
+    networks:
+      - inception
+    volumes:
+     - wordpress:/var/www/wordpress
+    restart: always
+
+
+  nginx:
     depends_on:
       - wordpress
+    container_name: nginx
+    image: nginx:eunskim
+    build:
+      context: ./requirements/nginx/
+    env_file:
+      - .env
     ports:
       - "443:443"
     networks:
       - inception
     volumes:
-      - ./requirements/nginx/conf/:/etc/nginx/http.d/
-      - ./requirements/nginx/tools:/etc/nginx/ssl/
-      - wp-volume:/var/www/
+      - wordpress:/var/www/wordpress
     restart: always
-
-  mariadb:
-    build:
-      context: .
-      dockerfile: requirements/mariadb/Dockerfile
-      args:
-        DB_NAME: ${DB_NAME}
-        DB_USER: ${DB_USER}
-        DB_PASS: ${DB_PASS}
-        DB_ROOT: ${DB_ROOT}
-    container_name: mariadb
-    ports:
-      - "3306:3306"
-    networks:
-      - inception
-    volumes:
-      - db-volume:/var/lib/mysql
-    restart: always
-
-  wordpress:
-    build:
-      context: .
-      dockerfile: requirements/wordpress/Dockerfile
-      args:
-        DB_NAME: ${DB_NAME}
-        DB_USER: ${DB_USER}
-        DB_PASS: ${DB_PASS}
-    container_name: wordpress
-    depends_on:
-      - mariadb
-    restart: always
-    networks:
-      - inception
-    volumes:
-      - wp-volume:/var/www/
 
 volumes:
-  wp-volume:
+  database:
+    name: database
+    driver: local
     driver_opts:
-      o: bind
+      o: "bind"
       type: none
-      device: /home/ykerdel/data/wordpress
-
-  db-volume:
+      device: /home/eunskim/data/database
+  wordpress:
+    name: wordpress
+    driver: local
     driver_opts:
-      o: bind
+      o: "bind"
       type: none
-      device: /home/ykerdel/data/mariadb
+      device: /home/eunskim/data/wordpress
 
 networks:
-    inception:
-        driver: bridge
+  inception:
+    name: inception
+    driver: bridge

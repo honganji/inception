@@ -1,44 +1,31 @@
-USER = ykerdel
-HOME = /home/${USER}
-CERT_PATH = ${HOME}/inception/srcs/requirements/nginx/tools
+name = inception
 
-all: cert
-	@bash ./srcs/conf/create_volumes.sh
-	@docker-compose -f ./srcs/docker-compose.yml up -d --remove-orphans
+all : build
 
-cert:
-	@mkdir ${CERT_PATH}
-	@cd ${CERT_PATH} && mkcert ${USER}.42.fr
-	@mv ${CERT_PATH}/${USER}.42.fr-key.pem ${CERT_PATH}/${USER}.42.fr.key
-	@mv ${CERT_PATH}/${USER}.42.fr.pem ${CERT_PATH}/${USER}.42.fr.crt
-	@cd -
+up:
+	docker-compose -f ./srcs/docker-compose.yml up -d
 
 build:
-	@docker-compose -f ./srcs/docker-compose.yml up -d --build --remove-orphans
+	docker-compose -f ./srcs/docker-compose.yml up -d --build
+
+stop:
+	docker-compose -f ./srcs/docker-compose.yml stop
+
+start:
+	docker-compose -f ./srcs/docker-compose.yml start
+
+status:
+	docker-compose -f ./srcs/docker-compose.yml ps
 
 down:
-	@docker-compose -f ./srcs/docker-compose.yml down
+	docker-compose -f ./srcs/docker-compose.yml down
 
-re:	down
-	@docker-compose -f ./srcs/docker-compose.yml up -d --build --remove-orephans
+clean:
+	docker system prune -af
+	
+fclean: clean
+	docker-compose -f ./srcs/docker-compose.yml down -v --rmi all
 
-clean: down
-	@docker system prune -a
+re: fclean all
 
-fclean: down
-	@rm -rf ${CERT_PATH}
-	@printf "\033[33m\u26d4 volume removal \u26d4\033[31m\n"
-	# @docker-compose down
-	@docker volume remove srcs_wp-volume srcs_db-volume
-	@printf "\033[0m\n"
-
-check:
-	@docker network ls
-	@printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-	@docker volume ls
-	@printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-	@docker images ls
-	@printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n"
-	@docker ps -a
-
-.PHONY	: all build down re clean fclean cert check
+.PHONY: all build stop start status down clean fclean re
