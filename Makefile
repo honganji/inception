@@ -6,6 +6,8 @@ up:
 	docker-compose -f ./srcs/docker-compose.yml up -d
 
 build:
+	mkdir -p $(HOME)/data/database
+	mkdir -p $(HOME)/data/wordpress
 	docker-compose -f ./srcs/docker-compose.yml up -d --build
 
 stop:
