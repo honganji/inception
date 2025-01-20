@@ -3,7 +3,7 @@ version: '3'
 services:
   mariadb:
     container_name: mariadb
-    image: mariadb:eunskim
+    image: mariadb:ytoshihi
     build:
       context: ./requirements/mariadb/
     env_file:
@@ -18,7 +18,7 @@ services:
     depends_on:
       - mariadb
     container_name: wordpress
-    image: wordpress:eunskim
+    image: wordpress:ytoshihi
     build:
       context: ./requirements/wordpress/
     env_file:
@@ -34,7 +34,7 @@ services:
     depends_on:
       - wordpress
     container_name: nginx
-    image: nginx:eunskim
+    image: nginx:ytoshihi
     build:
       context: ./requirements/nginx/
     env_file:
@@ -54,14 +54,14 @@ volumes:
     driver_opts:
       o: "bind"
       type: none
-      device: /home/eunskim/data/database
+      device: /home/ytoshihi/data/database
   wordpress:
     name: wordpress
     driver: local
     driver_opts:
       o: "bind"
       type: none
-      device: /home/eunskim/data/wordpress
+      device: /home/ytoshihi/data/wordpress
 
 networks:
   inception:
