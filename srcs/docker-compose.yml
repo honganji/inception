@@ -54,14 +54,14 @@ volumes:
     driver_opts:
       o: "bind"
       type: none
-      device: /home/ytoshihi/data/database
+      device: /root/data/database
   wordpress:
     name: wordpress
     driver: local
     driver_opts:
       o: "bind"
       type: none
-      device: /home/ytoshihi/data/wordpress
+      device: /root/data/wordpress
 
 networks:
   inception:
