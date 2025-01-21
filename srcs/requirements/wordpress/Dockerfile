@@ -1,13 +1,9 @@
-# Use the penultimate version of Alpine Linux
 FROM alpine:3.18
 
-# Use the penultimate version of PHP
 ENV PHP_VERSRION=82
 
-# Update and upgrade Alpine Linux, install PHP and PHP extensions
-# Install wget and unzip to download and extract Wordpress
-# Edit the PHP-FPM configuration file to listen on port 9000
-# Remove the apk cache
+# Install essential packages for wordpress
+# setup to listen to port 9000
 RUN apk update && apk upgrade && \
   apk add --no-cache \
   php${PHP_VERSRION} \
@@ -27,13 +23,10 @@ RUN apk update && apk upgrade && \
   /etc/php82/php-fpm.d/www.conf && \
   rm -rf /var/cache/apk/*
 
-# Copy the configuration script into the container
+# Copy the configuration script
 COPY ./tools/wordpress_init.sh /tmp/wordpress_init.sh
 
-# Change the permissions of the configuration script
-# Download and extract Wordpress
-# Create a directory for Wordpress and copy the files
-# Remove the downloaded archive
+# Download and install Wordpress
 RUN chmod +x /tmp/wordpress_init.sh && \
   wget https://wordpress.org/latest.zip && \
   unzip latest.zip && \
@@ -41,11 +34,11 @@ RUN chmod +x /tmp/wordpress_init.sh && \
   cp -rf wordpress/* /var/www/wordpress && \
   rm -rf wordpress latest.zip
 
-# Expose the port 9000 (default PHP-FPM port)
+# Expose the port 9000
 EXPOSE 9000
 
 # Set the working directory
 WORKDIR /var/www/wordpress
 
-# Configure and install Wordpress, start php-fpm
+# Command to run the script
 ENTRYPOINT ["/tmp/wordpress_init.sh"]
