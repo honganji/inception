@@ -25,6 +25,7 @@ clean:
 	docker system prune -af
 
 fclean: clean
+	rm -rf $(HOME)/data
 	docker-compose -f ./$(SRCS_DIR)/$(DOCKER_COMPOSE_FILE) down -v --rmi all
 
 re: fclean all
