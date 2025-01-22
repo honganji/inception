@@ -23,7 +23,7 @@ mv wp-cli.phar /usr/local/bin/wp
 
 wp core download --allow-root
 wp config create --dbname=${DB_NAME} --dbuser=${DB_USER} --dbpass=${DB_PASSWORD} --dbhost=${DB_HOST} --allow-root
-wp core install --url=${DOMAIN_NAME} --title=${TITLE} --admin_user=${ADMIN_USER} --admin_password=${ADMIN_USER_PASSWORD} --admin_email=${ADMIN_USER_EMAIL} --allow-root
+wp core install --url=localhost --title=${TITLE} --admin_user=${ADMIN_USER} --admin_password=${ADMIN_USER_PASSWORD} --admin_email=${ADMIN_USER_EMAIL} --allow-root
 wp user create "${USER}" "${USER_EMAIL}" --role=${USER_ROLE} --user_pass=${USER_PASSWORD} --allow-root
 
 php-fpm7.4 -F
