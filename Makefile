@@ -21,8 +21,17 @@ down:
 prune:
 	$(DOCKER) system prune -af
 
+remove:
+	$(DOCKER) stop $(shell docker ps -aq)
+	$(DOCKER) rm $(shell docker ps -aq)
+	$(DOCKER) rmi $(shell docker images -q)
+
+check:
+	$(DOCKER) ps -a
+	$(DOCKER) images
+
 clean:
-	docker system prune -af
+	$(DOCKER) system prune -af
 
 fclean: clean
 	rm -rf $(HOME)/data
@@ -30,7 +39,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all start down prune clean fclean re
+.PHONY: all start down prune remove clean fclean re
 
 GREEN := \033[0;32m
 BLUE := \033[0;34m
