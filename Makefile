@@ -1,4 +1,5 @@
 SRCS_DIR := srcs
+HOME_DIR := /home/ytoshihi
 
 DOCKER := docker
 COMPOSE := compose
@@ -11,8 +12,8 @@ RM_FLAG := -rf
 all: start
 
 start:
-	$(MAKE_DIR) $(HOME)/data/web
-	$(MAKE_DIR) $(HOME)/data/db
+	$(MAKE_DIR) $(HOME_DIR)/data/web
+	$(MAKE_DIR) $(HOME_DIR)/data/db
 	$(DOCKER) $(COMPOSE) -f ./$(SRCS_DIR)/$(DOCKER_COMPOSE_FILE) up -d
 
 down:
@@ -34,7 +35,7 @@ clean:
 	$(DOCKER) system prune -af
 
 fclean: clean
-	rm -rf $(HOME)/data
+	rm -rf $(HOME_DIR)/data
 	docker-compose -f ./$(SRCS_DIR)/$(DOCKER_COMPOSE_FILE) down -v --rmi all
 
 re: fclean all
